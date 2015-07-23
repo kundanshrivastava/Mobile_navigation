@@ -1,0 +1,92 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Player</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+    <script src="js/vendor/modernizr.js"></script>
+  </head>
+  <body>
+    <ul class="small-block-grid-1">
+      <li>
+      	<div id="video-container">
+	        <div id="player" class="flex-video widescreen">
+	         <video id="video" width="320" height="240" src="videos/Adele1.mp4" frameborder="0" allowfullscreen></video>
+	        </div>
+	        <div id="video-controls">
+  	    		<div class="small button" type="button" id="play-pause" style="width: 5% ; height: 5%; text-align: center;">Play</div>
+  	    	  <input type="range" id="seek-bar" value="0" style="width: 30%;">
+  	    		<div class="small button" type="button" id="mute" style="width: 5% ; height: 5%; text-align: center;">Mute</div>
+  			    <input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1" style="width :10%;">
+  	    		<div class="small button" type="button" id="full-screen" style="width: 5% ; height: 5%; text-align: center;">FS</div>
+	  		  </div>
+  		  </div>
+        <!--div id="player2" class="flex-video widescreen">
+         <iframe id="vid2" controls width="320" height="240" src="videos/Adele1.mp4" frameborder="0" allowfullscreen autoplay=false></iframe>
+        </div-->
+        <!--div id="local_cloud" class="small button" onclick="myFunction()">local cloud</div>
+        <div id="global_cloud" class="small button" onclick="myFunction()">Global cloud</div-->
+      </li>
+      <li>
+        <div class="small button" type="button" id="fast-forward" style="width: 5% ; height: 5%; text-align: center;">&raquo</div>
+        <div class="small button" type="button" id="fast-backward" style="width: 5% ; height: 5%; text-align: center;">&laquo</div>
+      </li>
+
+    </ul>
+    <script src="script.js"></script>
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script>
+      function myFunction()
+      {
+        console.log("this is clicked");
+        var video=document.getElementById("vid1");
+        video.pause();
+        //console.log(document.getElementById("player1").innerHTML);
+       // var img="<img id="img1" src="pix/img1.jpg" alt="no image present" >"
+        //video.replaceWith(img);
+      // var x= $('iframe').attr('src')
+        //$('iframe').attr('src', '');
+
+        //$('iframe').attr('src', x);
+       /* if ($("video").get(0).paused) 
+        {
+          $("video").get(0).play();
+        } 
+        else {
+          $("video").get(0).pause();
+        }*/
+        var video=document.getElementById('player');
+        video.addEventListener('click',function(){video.play()},false);
+        console.log(video.innerHTML);
+       // video.innerHTML = "<img id="img1" src="pix/img1.jpg" alt="no image present" >"
+      }
+      console.log("this is fun");
+      $(document).foundation();
+      $("video").click(function(e)
+      {
+
+        console.log("video clicked");
+        var y = (e.pageY - $(this).offset().top) ;
+        var height = parseFloat( $(this).height() );
+        if (y> 0.82*height) return ;
+        console.log(y+" "+ 0.82*height);
+        this.paused ? this.play() : this.pause() ;
+        var play_pause = document.getElementById("play-pause");
+        this.paused ? (play_pause.innerHTML = "Play") : (play_pause.innerHTML = "Pause");
+      })
+
+      $("img").click(function(e){
+      var pos = $(this).position();
+      var id_new= this.id
+      //The following are the x/y coordinates of the mouse click relative to image.
+      var x = e.pageX - pos.left;
+      var y = e.pageY - pos.top;
+      //document.write(x);x
+      console.log(x+ " " +y+" "+id_new);
+      //console.log(y);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,178 @@
+ console.log("console works");
+
+  var filestring="";
+  // Allow for vendor prefixes.
+  window.requestFileSystem = window.requestFileSystem ||
+                             window.webkitRequestFileSystem;
+  var filename="log.txt";
+
+  console.log("hello");
+  // Create a variable that will store a reference to the FileSystem.
+  var filesystem = null;
+
+  // A simple error handler to be used throughout this demo.
+  function errorHandler(error) {
+    var message = '';
+
+    switch (error.code) {
+      case FileError.SECURITY_ERR:
+        message = 'Security Error';
+        break;
+      case FileError.NOT_FOUND_ERR:
+        message = 'Not Found Error';
+        break;
+      case FileError.QUOTA_EXCEEDED_ERR:
+        message = 'Quota Exceeded Error';
+        break;
+      case FileError.INVALID_MODIFICATION_ERR:
+        message = 'Invalid Modification Error';
+        break;
+      case FileError.INVALID_STATE_ERR:
+        message = 'Invalid State Error';
+        break;
+      default:
+        message = 'Unknown Error';
+        break;
+    }
+
+    console.log(message);
+  }
+
+
+  // Request a FileSystem and set the filesystem variable.
+  function initFileSystem() {
+    navigator.webkitPersistentStorage.requestQuota(1024 * 1024 * 5,
+      function(grantedSize) {
+
+        // Request a file system with the new size.
+        window.requestFileSystem(window.PERSISTENT, grantedSize, function(fs) {
+          console.log(grantedSize);
+          console.log("hello initFileSystem");
+          // Set the filesystem variable.
+          filesystem = fs;
+          console.log(filesystem);
+          // Setup event listeners on the form.
+          setupEventListeners();
+
+          // Update the file browser.
+         // listFiles();
+
+        }, errorHandler);
+
+      }, errorHandler);
+  }
+
+
+  function loadFile(filename) {
+    filesystem.root.getFile(filename, {}, function(fileEntry) {
+
+      fileEntry.file(function(file) {
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+          // Update the form fields.
+          //filenameInput.value = filename;
+          //contentTextArea.value = this.result;
+          console.log("in loadfile");
+          //console.log(this.result);
+          filestring=this.result;
+        };
+
+        reader.readAsText(file);
+      }, errorHandler);
+
+    }, errorHandler);
+  }
+
+  // Save a file in the FileSystem.
+  function saveFile(filename, content) {
+    filesystem.root.getFile(filename, {create: true}, function(fileEntry) {
+
+      fileEntry.createWriter(function(fileWriter) {
+
+        fileWriter.onwriteend = function(e) {
+          // Update the file browser.
+         // listFiles();
+
+          // Clean out the form field.
+         // filenameInput.value = '';
+         // contentTextArea.value = '';
+
+          // Show a saved message.
+         // messageBox.innerHTML = 'File saved!';
+        }; 
+        //content += "\n";
+        loadFile(filename);
+        console.log("file till now b4 saving " + filestring);
+        content = content + "\n" + filestring ;
+        fileWriter.onerror = function(e) {
+          console.log('Write error: ' + e.toString());
+          alert('An error occurred and your file could not be saved!');
+        };
+       // console.log(content);
+
+        var contentBlob = new Blob([content], {type: 'text/plain'});
+
+        fileWriter.write(contentBlob);
+
+      }, errorHandler);
+
+    }, errorHandler);
+  }
+  // Add event listeners on the form.
+  function setupEventListeners() {
+
+     fastforward.addEventListener("click",function(){
+      console.log(player.getCurrentTime()+" ");
+      fwrite(fp,"this works");
+      var currentTime= player.getCurrentTime();
+      if (currentTime + 10 < player.getDuration() )
+        player.seekTo(currentTime + 10 , true);
+      else 
+        player.seekTo(player.getDuration(),true);
+      console.log("video.currentTime");
+      savefile(filename,content);
+      });
+
+    fastbackward.addEventListener("click",function(){
+      console.log(player.getCurrentTime()+" ");
+      var currentTime= player.getCurrentTime();
+      if (currentTime - 10 >= 0) 
+        player.seekTo(currentTime - 10 , true);
+      else 
+        player.seekTo(0,true);
+      console.log("video.currentTime");
+      savefile(filename,content);
+      });
+  // Event listener for the seek bar
+    seekBar.addEventListener("change", function() {
+      // Calculate the new time
+      checkforlogevent=true;
+      logstring="seeked from " + player.getCurrentTime() + "\t" ; 
+      console.log(seekBar.value + " "+ player.getDuration() +" " + player.getCurrentTime() );
+      var time = player.getDuration() * (seekBar.value / 100);
+      logstring+=time;
+      // Update the video time
+     player.seekTo(time,true);
+    
+     savefile(filename,content);
+    });
+
+    seekBar.addEventListener("mousedown", function() {
+      player.pauseVideo();
+    });
+
+    // Play the video when the seek handle is dropped
+    seekBar.addEventListener("mouseup", function() {
+
+      player.getPlayerState== YT.PlayerState.PAUSED ? player.pauseVideo() : player.playVideo();
+    });
+
+  }
+
+  // Start the app by requesting a FileSystem (if the browser supports the API)
+  if (window.requestFileSystem) {
+    initFileSystem();
+  } else {
+    alert('Sorry! Your browser doesn\'t support the FileSystem API :(');
+  }

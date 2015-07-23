@@ -1,0 +1,341 @@
+  <!doctype html>
+  <html class="no-js" lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Video Player</title>
+      <link rel="stylesheet" href="css/foundation.css" />
+      <script src="js/vendor/modernizr.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+      <script>
+        $(document).ready(function(){
+                $("#video-controls").hide();
+            });
+      </script>
+    </head>
+    <body>
+      <div id="removable-form">
+      <ul class="small-block-grid-3">
+        <form action="#" method="POST" id="user-form">
+          <div class="row">
+             <li>
+              <div class="large-12 columns">
+                <label>UserName:
+                  <input type="text" id="uname" placeholder="Username" />
+                </label>
+              </div>
+            </li>
+            <li>
+              <div class="large-12 columns">
+                <label>Video Id:
+                  <input type="text" id="videoid" placeholder="yTvideoId" />
+                </label>
+              </div>
+            </li>
+          <button class="button radius" type="submit" id="submit-button" style="margin-left:40%">Enter</button>
+        </div>
+      </form>
+      </ul>
+    </div>
+      <ul class="small-block-grid-1"><li>
+            <div id="player-container" class="flex-video widescreen">
+             <div id="player" style="height:90%;" onClick = "myfunction(event)"></div>
+            </div>
+            <div id="video-controls" align="center">
+              <input type='range' id='seek-bar' value='0' style='width:100%;`'>
+              <div class='radius button' type='button' id='fast-forward' >&raquo</div>
+              <div class='radius button' type='button' id='fast-backward' style='margin-left:40%' >&laquo</div>
+              <div id="time-elapsed"></div>
+            </div>
+        </li> 
+      </ul>
+      
+
+
+      <script>
+        var YTvideoId="LwsaoLEvWbw";
+        var userid="kushal.xerox";
+        var done=false ;
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        var player;
+
+
+
+        document.getElementById("user-form").addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Get the form data.
+        YTvideoId = document.getElementById("videoid").value;
+        userid = document.getElementById("uname").value;
+        done=true;
+        console.log(document.getElementById("removable-form").innerHTML);
+        clearForm();
+       // document.getElementById("video-controls").style.display ="block" ; 
+        onYouTubeIframeAPIReady();
+      });
+
+      function myfunction(event)
+      {
+        console.log("myfunction triggered");
+      }
+        function getTimestamp()
+        {
+        // Create a date object with the current time
+          var now = new Date();
+         
+        // Create an array with the current month, day and time
+          var date = [ now.getMonth() + 1, now.getDate(), now.getFullYear() ];
+         
+        // Create an array with the current hour, minute and second
+          var time = [ now.getHours(), now.getMinutes(), now.getSeconds() ];
+         
+        // Determine AM or PM suffix based on the hour
+          var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+         
+        // Convert hour from military time
+          time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+         
+        // If hour is 0, set it to 12
+          time[0] = time[0] || 12;
+         
+        // If seconds and minutes are less than 10, add a zero
+          for ( var i = 1; i < 3; i++ ) {
+            if ( time[i] < 10 ) {
+              time[i] = "0" + time[i];
+            }
+          }
+         
+        // Return the formatted string
+          return date.join("/") + "*" + time.join(":") + "" + suffix;
+        }
+
+
+        function httpGet(theUrl)
+          {
+            //console.log("httpget startted");
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState==4 && xmlhttp.status==200)
+                {
+                    return xmlhttp.responseText;
+                }
+            }
+            xmlhttp.open("GET", theUrl, false );
+            xmlhttp.send();  
+            //console.log("httpget ended");
+          }
+          httpGet("http://104.130.241.45:8080/VWC_V6/cgi-bin/InstLogger.py?uid=test&time=test2&v_id=test3&v_action=test4");
+
+        var logURL="http://104.130.241.45:8080/VWC_V6/cgi-bin/InstLogger.py?";
+        logURL = logURL + "uid=" + userid +"&" ;
+
+        function clearForm()
+        {
+          if(done)
+          {
+            console.log("trying to remove the form");
+            document.getElementById("removable-form").innerHTML = "";
+            $("#video-controls").show();
+
+          }
+        }
+
+        // 2. This code loads the IFrame Player API code asynchronously.
+
+        var playerLoaded = false;
+
+        function onYouTubeIframeAPIReady() {
+          if(done)
+          {
+            player = new YT.Player('player', {
+              //height: '390',
+              //width: '640',
+              videoId: YTvideoId,
+              playerVars :{'controls' : 0,'cc_load_policy' : 1,'disablekb' : 1},
+              events: {
+                //'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+               // 'onPlaybackRateChange': onRateChange
+              }
+            });
+            playerLoaded=true;
+            console.log("player is loaded");
+            
+         }
+        }
+
+        // 4. The API will call this function when the video player is ready.
+        function onPlayerReady(event) {
+          event.target.playVideo();
+        }
+
+        // 5. The API calls this function when the player's state changes.
+        //    The function indicates that when playing a video (state=1),
+        //    the player should play for six seconds and then stop.
+
+        function stopVideo() {
+          player.stopVideo();
+        }
+
+        var fastforward = document.getElementById("fast-forward");
+        var fastbackward = document.getElementById("fast-backward");
+        var seekBar = document.getElementById("seek-bar");
+
+
+
+      // this function executes at interval of 1ms
+
+        window.setInterval(function(){
+         if(done &&  playerLoaded){ 
+         if(player.getPlayerState()==YT.PlayerState.PLAYING){
+            updateSeekBar();
+            }
+             var t=player.getCurrentTime();
+            var prefix;
+            switch( Math.floor(t%60))
+            {
+              case 0: prefix="00";break;
+              case 1: prefix="01";break;
+              case 2: prefix="02";break;
+              case 3: prefix="03";break;
+              case 4: prefix="04";break;
+              case 5: prefix="05";break;
+              case 6: prefix="06";break;
+              case 7: prefix="07";break;
+              case 8: prefix="08";break;
+              case 9: prefix="09";break;
+              default : prefix=Math.floor(t%60);break;
+            }
+            document.getElementById("time-elapsed").innerHTML = Math.floor(t/60) +":"+ prefix +"/" +Math.floor(player.getDuration()/60) +":"+ Math.floor(player.getDuration()%60); 
+        }}, 500);
+
+      function updateSeekBar()
+      {
+         var value = (100 / player.getDuration() ) * player.getCurrentTime();
+
+              // Update the slider value
+         seekBar.value = value;
+      }
+
+
+        function onPlayerStateChange(event) {
+          var logURL="http://104.130.241.45:8080/VWC_V6/cgi-bin/InstLogger.py?";
+          logURL = logURL + "uid=" + userid +"&" ;
+         // console.log(player.getAvailablePlaybackRates());
+        //  availableRates=player.getAvailablePlaybackRates();
+         // console.log(availableRates.length); 
+          var content=player.getPlayerState();
+          if(player.getPlayerState() == YT.PlayerState.PLAYING)
+            content= "event:video_playing*" + player.getCurrentTime() ;
+          else if(player.getPlayerState() == YT.PlayerState.PAUSED)
+            content= "event:video_paused*" + player.getCurrentTime() ;
+          else if(player.getPlayerState() == YT.PlayerState.BUFFERING)
+            content= "event:video_buffering*" + player.getCurrentTime() ;
+          else if(player.getPlayerState() ==YT.PlayerState.ENDED)
+            content= "event:video_ended*" + player.getCurrentTime();
+         // displayCurrentRate();
+          logURL = logURL + "time="+ getTimestamp() + "&v_id=" + YTvideoId + "&v_action=" + content ;
+          //console.log(logURL);
+          httpGet(logURL);
+
+        //  saveFile(filename,content);
+
+        }
+
+
+
+    // Add event listeners on the video player
+
+
+     fastforward.addEventListener("click",function(){
+      var logURL="http://104.130.241.45:8080/VWC_V6/cgi-bin/InstLogger.py?";
+      logURL = logURL + "uid=" + userid +"&" ;
+      console.log(player.getCurrentTime()+" ");
+     // fwrite(fp,"this works");
+      var currentTime= player.getCurrentTime();
+      var content="";
+      if (currentTime + 10 < player.getDuration() )
+      {
+        player.seekTo(currentTime + 10 , true);
+        content= "event:fast-forwarded*" + currentTime + "*" + (currentTime+10);
+      }
+      else 
+       {
+        player.seekTo(player.getDuration(),true);
+        content= "event:fast-forwarded*" + currentTime + "*" + player.getDuration();
+       }
+      console.log("video.currentTime");
+      logURL = logURL + "time="+ getTimestamp() + "&v_id=" + YTvideoId + "&v_action=" + content ;
+      httpGet(logURL);
+
+      //var content= "event:fast-forwarded #" + currentTime + "#" + (currentTime+10);
+     // saveFile(filename,content);
+      });
+
+    fastbackward.addEventListener("click",function(){
+      var logURL="http://104.130.241.45:8080/VWC_V6/cgi-bin/InstLogger.py?";
+      logURL = logURL + "uid=" + userid +"&" ;
+      console.log(player.getCurrentTime()+" ");
+      var currentTime= player.getCurrentTime();
+
+      if (currentTime - 10 > 0 )
+      {
+        player.seekTo(currentTime - 10 , true);
+        content= "event:fast-backwarded*" + currentTime + "*" + (currentTime-10);
+      }
+      else 
+      {
+        player.seekTo(0,true);
+        content= "event:fast-backwarded*" + currentTime + "*0";
+      }
+      console.log("video.currentTime");
+
+      logURL = logURL + "time="+ getTimestamp() + "&v_id=" + YTvideoId + "&v_action=" + content ;
+      httpGet(logURL);
+     // var content= "fastbackwarded from " + currentTime + "to " + (currentTime+10);
+    //  saveFile(filename,content);
+      });
+    // Event listener for the seek bar
+      seekBar.addEventListener("change", function() {
+        // Calculate the new time
+        var logURL="http://104.130.241.45:8080/VWC_V6/cgi-bin/InstLogger.py?";
+        logURL = logURL + "uid=" + userid +"&" ;
+        checkforlogevent=true;
+        var tmp=player.getCurrentTime();
+        var logstring="event:video_seeked*" + tmp + "*" ; 
+        //console.log(seekBar.value + " "+ player.getDuration() +" " + player.getCurrentTime() );
+       // var content = "seeked video " + seekBar.value + " "+ player.getDuration() +" " + player.getCurrentTime() ;
+        var time = player.getDuration() * (seekBar.value / 100);
+        logstring= logstring  + time;
+        // Update the video time
+        player.seekTo(time,true);
+        logURL = logURL + "time="+ getTimestamp() + "&v_id=" + YTvideoId + "&v_action=" + logstring ;
+        //console.log(logURL);
+        httpGet(logURL);
+     //  saveFile(filename,logstring);
+      });
+var prev_status;
+      seekBar.addEventListener("mousedown", function() {
+        player.getPlayerState()== YT.PlayerState.PAUSED ? prev_status="PAUSED" : prev_status="PLAYING";
+        player.pauseVideo();
+      });
+
+      // Play the video when the seek handle is dropped
+      seekBar.addEventListener("mouseup", function() {
+
+        prev_status=="PAUSED" ? player.pauseVideo() : player.playVideo();
+      });
+
+
+
+
+  ///////////////////// file read write part ends ///////
+
+
+      </script>
+
+    </body>
+  </html>

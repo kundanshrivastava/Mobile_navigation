@@ -1,0 +1,352 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Player</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+    <script src="js/vendor/modernizr.js"></script>
+  </head>
+  <body>
+    <ul class="small-block-grid-1">
+      <li>
+        <div id="video-container">
+          <div id="player-container" class="flex-video widescreen">
+           <div id="player"></div>
+          </div>
+          <div id="video-controls">
+
+            <input type="range" id="seek-bar" value="0" style="width: 100%;">
+
+            <div class="small button" type="button" id="fast-forward" style="width: 5% ; height: 5%; text-align: center;">&raquo</div>
+            <div id="removable-text"></div>
+            <!--div class="small button" type="button" id="fast-backward" style="width: 5% ; height: 5%; text-align: center;">&laquo</div-->
+          </div>
+        </div>
+        <!--div id="player2" class="flex-video widescreen">
+         <iframe id="vid2" controls width="320" height="240" src="videos/Adele1.mp4" frameborder="0" allowfullscreen autoplay=false></iframe>
+        </div-->
+        <!--div id="local_cloud" class="small button" onclick="myFunction()">local cloud</div>
+        <div id="global_cloud" class="small button" onclick="myFunction()">Global cloud</div-->
+      </li>
+
+    </ul>
+
+
+    <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      var checkforlogevent=false;
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+
+      function getTimestamp()
+        {
+        // Create a date object with the current time
+          var now = new Date();
+         
+        // Create an array with the current month, day and time
+          var date = [ now.getMonth() + 1, now.getDate(), now.getFullYear() ];
+         
+        // Create an array with the current hour, minute and second
+          var time = [ now.getHours(), now.getMinutes(), now.getSeconds() ];
+         
+        // Determine AM or PM suffix based on the hour
+          var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+         
+        // Convert hour from military time
+          time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+         
+        // If hour is 0, set it to 12
+          time[0] = time[0] || 12;
+         
+        // If seconds and minutes are less than 10, add a zero
+          for ( var i = 1; i < 3; i++ ) {
+            if ( time[i] < 10 ) {
+              time[i] = "0" + time[i];
+            }
+          }
+         
+        // Return the formatted string
+          return date.join("/") + "" + time.join(":") + "" + suffix;
+        }
+
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          //height: '390',
+          //width: '640',
+          videoId: 'LwsaoLEvWbw',
+          playerVars :{'controls' : 0,'cc_load_policy' : 1,'disablekb' : 1},
+          events: {
+            //'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+     }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+
+      function stopVideo() {
+        player.stopVideo();
+      }
+
+    var fastforward = document.getElementById("fast-forward");
+    var fastbackward = document.getElementById("fast-backward");
+    var seekBar = document.getElementById("seek-bar");
+
+
+
+window.setInterval(function(){
+
+ if(player.getPlayerState()==YT.PlayerState.PLAYING){
+      var value = (100 / player.getDuration() ) * player.getCurrentTime();
+      // Update the slider value
+      seekBar.value = value;
+    setupEventListeners() ; }
+
+    document.getElementById("removable-text").innerHTML ="Hello World" ;
+}, 1);
+/////////////**************************************/////////
+/////// the file read write part////////////////////////////
+
+ console.log("console works");
+
+  var filestring="";
+  // Allow for vendor prefixes.
+  window.requestFileSystem = window.requestFileSystem ||
+                             window.webkitRequestFileSystem;
+  var filename="deepali.txt";
+
+  console.log("hello");
+  // Create a variable that will store a reference to the FileSystem.
+  var filesystem = null;
+
+  // A simple error handler to be used throughout this demo.
+  function errorHandler(error) {
+    var message = 'no error';
+
+    switch (error.code) {
+      case FileError.SECURITY_ERR:
+        message = 'Security Error';
+        break;
+      case FileError.NOT_FOUND_ERR:
+        message = 'Not Found Error';
+        break;
+      case FileError.QUOTA_EXCEEDED_ERR:
+        message = 'Quota Exceeded Error';
+        break;
+      case FileError.INVALID_MODIFICATION_ERR:
+        message = 'Invalid Modification Error';
+        break;
+      case FileError.INVALID_STATE_ERR:
+        message = 'Invalid State Error';
+        break;
+      default:
+        message = 'Unknown Error';
+        break;
+    }
+
+   // console.log(message);
+  }
+
+
+  // Request a FileSystem and set the filesystem variable.
+  function initFileSystem() {
+    navigator.webkitPersistentStorage.requestQuota(1024 * 1024 * 5,
+      function(grantedSize) {
+
+        // Request a file system with the new size.
+        window.requestFileSystem(window.PERSISTENT, grantedSize, function(fs) {
+          console.log(grantedSize);
+          console.log("hello initFileSystem");
+          // Set the filesystem variable.
+          filesystem = fs;
+          console.log(filesystem);
+          // Setup event listeners on the form.
+          setupEventListeners();
+
+          // Update the file browser.
+         // listFiles();
+
+        }, errorHandler);
+
+      }, errorHandler);
+  }
+
+
+  function loadFile(filename) {
+    filesystem.root.getFile(filename, {}, function(fileEntry) {
+
+      fileEntry.file(function(file) {
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+          // Update the form fields.
+          //filenameInput.value = filename;
+          //contentTextArea.value = this.result;
+          console.log("in loadfile");
+          //console.log(this.result);
+          filestring=this.result;
+        };
+
+        reader.readAsText(file);
+      }, errorHandler);
+
+    }, errorHandler);
+  }
+
+  // Save a file in the FileSystem.
+  function saveFile(filename, content) {
+    filesystem.root.getFile(filename, {create: true}, function(fileEntry) {
+
+      fileEntry.createWriter(function(fileWriter) {
+
+        fileWriter.onwriteend = function(e) {
+          // Update the file browser.
+         // listFiles();
+
+          // Clean out the form field.
+         // filenameInput.value = '';
+         // contentTextArea.value = '';
+
+          // Show a saved message.
+         // messageBox.innerHTML = 'File saved!';
+        }; 
+        //content += "\n";
+        loadFile(filename);
+        console.log("file till now b4 saving " + filestring);
+        content = content + "\n" + filestring ;
+        fileWriter.onerror = function(e) {
+          console.log('Write error: ' + e.toString());
+          alert('An error occurred and your file could not be saved!');
+        };
+       // console.log(content);
+
+        var contentBlob = new Blob([content], {type: 'text/plain'});
+
+        fileWriter.write(contentBlob);
+
+      }, errorHandler);
+
+    }, errorHandler);
+  }
+  ///////////////////////////////////
+
+        function onPlayerStateChange(event) {
+         // var logURL="http://104.130.241.45:8080/VWC_V6/cgi-bin/InstLogger.py?";
+          //logURL = logURL + "uid=" + userid +"&" ;
+         // console.log(player.getAvailablePlaybackRates());
+        //  availableRates=player.getAvailablePlaybackRates();
+         // console.log(availableRates.length); 
+          var content=player.getPlayerState();
+          if(player.getPlayerState() == YT.PlayerState.PLAYING)
+            content= "event:video_playing*" + player.getCurrentTime() ;
+          else if(player.getPlayerState() == YT.PlayerState.PAUSED)
+            content= "event:video_paused*" + player.getCurrentTime() ;
+          else if(player.getPlayerState() == YT.PlayerState.BUFFERING)
+            content= "event:video_buffering*" + player.getCurrentTime() ;
+          else if(player.getPlayerState() ==YT.PlayerState.ENDED)
+            content= "event:video_ended*" + player.getCurrentTime();
+
+          content = "time="+ getTimestamp() + content; 
+         // displayCurrentRate();
+         // logURL = logURL + "time="+ getTimestamp() + "&v_id=" + YTvideoId + "&v_action=" + content ;
+          //console.log(logURL);
+        //  httpGet(logURL);
+
+          saveFile(filename,content);
+
+        }
+
+
+  // Add event listeners on the video player
+function setupEventListeners()
+{
+
+     fastforward.addEventListener("click",function(){
+      console.log(player.getCurrentTime()+" ");
+     // fwrite(fp,"this works");
+      var currentTime= player.getCurrentTime();
+      if (currentTime + 10 < player.getDuration() )
+        player.seekTo(currentTime + 10 , true);
+      else 
+        player.seekTo(player.getDuration(),true);
+      console.log("video.currentTime");
+      var content= "time="+getTimestamp() +  " event:fast-forwarded" + currentTime + "##" + (currentTime+10);
+      saveFile(filename,content);
+      console.log("function called");
+      });
+
+   /* fastbackward.addEventListener("click",function(){
+      console.log(player.getCurrentTime()+" ");
+      var currentTime= player.getCurrentTime();
+      if (currentTime - 10 >= 0) 
+        player.seekTo(currentTime - 10 , true);
+      else 
+        player.seekTo(0,true);
+      console.log("video.currentTime");
+      var content= "event:fastbackwarded" + currentTime + "##" + (currentTime-10);
+      saveFile(filename,content);
+      });*/
+  // Event listener for the seek bar
+    seekBar.addEventListener("change", function() {
+      // Calculate the new time
+      checkforlogevent=true;
+      var tmp=player.getCurrentTime();
+      var logstring="event:video-seeked" + tmp + "##" ; 
+      console.log(seekBar.value + " "+ player.getDuration() +" " + player.getCurrentTime() );
+      var content = "seeked video " + seekBar.value + " "+ player.getDuration() +" " + player.getCurrentTime() ;
+      var time = player.getDuration() * (seekBar.value / 100);
+      logstring= logstring  + time;
+      logstring =  "time="+getTimestamp() +  logstring;
+      // Update the video time
+     player.seekTo(time,true);
+    
+     saveFile(filename,logstring);
+    });
+
+    seekBar.addEventListener("mousedown", function() {
+      player.pauseVideo();
+    });
+
+    // Play the video when the seek handle is dropped
+    seekBar.addEventListener("mouseup", function() {
+
+      player.getPlayerState== YT.PlayerState.PAUSED ? player.pauseVideo() : player.playVideo();
+    });
+
+  
+}
+  // Start the app by requesting a FileSystem (if the browser supports the API)
+  if (window.requestFileSystem) {
+    initFileSystem();
+  } else {
+    alert('Sorry! Your browser doesn\'t support the FileSystem API :(');
+  }
+
+
+
+///////////////////// file read write part ends ///////
+
+
+    </script>
+    <!--script src="script.js"></script-->
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+
+  </body>
+</html>
